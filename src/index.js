@@ -86,7 +86,7 @@ function returnBadArguments(fn, ...rest) {
 function findError(data1, data2) {
     return (function() {
         for (var i = 0; i < data1.length; i++) {
-            if (data1[i] !== data2[i]) {
+            if (data1[i] != data2[i] && !((data1[i] != data1[i]) && (data2[i] != data2[i]))) {
                 return false;
             }
         }
@@ -109,7 +109,29 @@ function findError(data1, data2) {
  - number не является числом (с текстом "number is not a number")
  - какой-либо из аргументов div является нулем (с текстом "division by 0")
  */
-function calculator(number) {
+function calculator(number = 0) {
+    if (typeof number != 'number') {
+        throw new Error('number is not a number');
+    }
+    
+    return {
+        sum: function (...args) {
+            return number + args.reduce((prevValue, curValue) => prevValue + curValue);
+        },
+        dif: function (...args) {
+            return number - args.reduce((prevValue, curValue) => prevValue + curValue);
+        },
+        div: function (...args) {
+            if (args.indexOf(0) != -1) {
+                throw new Error('division by 0')
+            }
+            
+            return number / args.reduce((prevValue, curValue) => prevValue / curValue);
+        },
+        mul: function (...args) {
+            return number * args.reduce((prevValue, curValue) => prevValue * curValue);
+        }
+    }
 }
 
 export {
