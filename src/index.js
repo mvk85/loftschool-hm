@@ -1,68 +1,143 @@
-/* ДЗ 1 - Функции */
+/* ДЗ 2 - работа с исключениями и отладчиком */
 
 /*
- Задание 1:
-
- Функция должна принимать один аргумент и возвращать его
+ Задача 1:
+ Функция принимает массив и фильтрующую фукнцию и должна вернуть true или false
+ Функция должна вернуть true только если fn вернула true для всех элементов массива
+ Необходимо выбрасывать исключение в случаях:
+ - array не массив или пустой массив (с текстом "empty array")
+ - fn не является функцией (с текстом "fn is not a function")
+ Зарпещено использовать встроенные методы для работы с массивами
  */
-function returnFirstArgument(arg) {
-    
+function isAllTrue(array, fn) {
+    if (!Array.isArray(array) || (array.length < 1)) {
+        throw new Error('empty array');
+    }
+    if (typeof fn !== 'function') {
+        throw new Error('fn is not a function');
+    }
+
+    for (var i = 0; i < array.length; i++) {
+        if (!fn(array[i])) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 /*
- Задание 2:
-
- Функция должна принимать два аргумента и возвращать сумму переданных значений
- Значение по умолчанию второго аргумента должно быть 100
+ Задача 2:
+ Функция принимает массив и фильтрующую фукнцию и должна вернуть true или false
+ Функция должна вернуть true если fn вернула true хотя бы для одного из элементов массива
+ Необходимо выбрасывать исключение в случаях:
+ - array не массив или пустой массив (с текстом "empty array")
+ - fn не является функцией (с текстом "fn is not a function")
+ Зарпещено использовать встроенные методы для работы с массивами
  */
-function defaultParameterValue(a, b) {
-   
+function isSomeTrue(array, fn) {
+    if (!Array.isArray(array) || (array.length < 1)) {
+        throw new Error('empty array');
+    }
+    if (typeof fn !== 'function') {
+        throw new Error('fn is not a function');
+    }
+
+    for (var i = 0; i < array.length; i++) {
+        if (fn(array[i])) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 /*
- Задание 3:
-
- Функция должна возвращать все переданные в нее аргументы в виде массива
- Количество переданных аргументов заранее неизвестно
+ Задача 3:
+ Функция принимает заранее неизветсное количество аргументов, первым из которых является функция fn
+ Функция должна поочередно запусти fn для каждого переданного аргумента (кроме самой fn)
+ Функция должна вернуть массив аргументов, для которых fn выбросила исключение
+ Необходимо выбрасывать исключение в случаях:
+ - fn не является функцией (с текстом "fn is not a function")
  */
-function returnArgumentsArray() {
+function returnBadArguments(fn, ...rest) {
+    if (typeof fn !== 'function') {
+        throw new Error('fn is not a function');
+    }
     
+    let result = [];
+    
+    for (var i = 0; i < rest.length; i++) {
+        try {
+            fn(rest[i]);
+        } catch (e) {
+            result.push(rest[i]);
+        }
+    }
+    
+    return result; 
 }
 
 /*
- Задание 4:
-
- Функция должна принимать другую функцию и возвращать результат вызова переданной функции
+ Задача 4:
+ Используя отладчик и точки остановки, определите в каких случаях if дает true
+ Исправьте условие внутри if таким образом, чтобы функция возвращала true
  */
-function returnFnResult(fn) {
-    
+function findError(data1, data2) {
+    return (function() {
+        for (var i = 0; i < data1.length; i++) {
+            if (data1[i] != data2[i] && !((data1[i] != data1[i]) && (data2[i] != data2[i]))) {
+                return false;
+            }
+        }
+
+        return true;
+    })();
 }
 
 /*
- Задание 5:
+ Задача 5:
+ Функция имеет параметр number (по умолчанию - 0)
+ Функция должна вернуть объект, у которого должно быть несколько методов:
+ - sum - складывает number с переданным аргументами
+ - dif - вычитает из number переданные аргументы
+ - div - делит number на первый аргумент. Результат делится на следующий аргумент (если передан) и так далее
+ - mul - умножает number на первый аргумент. Результат умножается на следующий аргумент (если передан) и так далее
 
- Функция должна принимать число (значение по умолчанию - 0) и возвращать функцию (F)
- При вызове F, переданное число должно быть увеличено на единицу и возвращено из F
+ Количество передаваемых в методы аргументов заранее неизвестно
+ Необходимо выбрасывать исключение в случаях:
+ - number не является числом (с текстом "number is not a number")
+ - какой-либо из аргументов div является нулем (с текстом "division by 0")
  */
-function returnCounter(number) {
+function calculator(number = 0) {
+    if (typeof number != 'number') {
+        throw new Error('number is not a number');
+    }
     
-}
-
-/*
- Задание 6 *:
-
- Функция должна принимать другую функцию (F) и некоторое количество дополнительных аргументов
- Функция должна привязать переданные аргументы к функции F и вернуть получившуюся функцию
- */
-function bindFunction(fn) {
-    
+    return {
+        sum: function (...args) {
+            return number + args.reduce((prevValue, curValue) => prevValue + curValue);
+        },
+        dif: function (...args) {
+            return number - args.reduce((prevValue, curValue) => prevValue + curValue);
+        },
+        div: function (...args) {
+            if (args.indexOf(0) != -1) {
+                throw new Error('division by 0')
+            }
+            
+            return number / args.reduce((prevValue, curValue) => prevValue / curValue);
+        },
+        mul: function (...args) {
+            return number * args.reduce((prevValue, curValue) => prevValue * curValue);
+        }
+    }
 }
 
 export {
-    returnFirstArgument,
-    defaultParameterValue,
-    returnArgumentsArray,
-    returnFnResult,
-    returnCounter,
-    bindFunction
-}
+    isAllTrue,
+    isSomeTrue,
+    returnBadArguments,
+    findError,
+    calculator
+};
