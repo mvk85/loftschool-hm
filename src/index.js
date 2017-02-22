@@ -1,84 +1,65 @@
-/* ДЗ 5.1 - DOM Events */
+/* ДЗ 6.1 - Асинхронность и работа с сетью */
 
 /**
- * Функция должна добавлять обработчик fn события eventName к элементу target
+ * Функция должна создавать Promise, который должен быть resolved через seconds секунду после создания
  *
- * @param {string} eventName - имя события, на которое нужно добавить обработчик
- * @param {Element} target - элемент, на который нужно добавить обработчик
- * @param {function} fn - обработчик
+ * @param {number} seconds - количество секунд, через которое Promise должен быть resolved
+ * @return {Promise}
  */
-function addListener(eventName, target, fn) {
-    target.addEventListener(eventName, fn);
+function delayPromise(seconds) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => resolve(), seconds * 1000);    
+    });    
 }
 
 /**
- * Функция должна удалять обработчик fn события eventName у элемента target
+ * Функция должна вернуть Promise, который должен быть разрешен массивом городов, загруженным из
+ * https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json
+ * Элементы полученного массива должны быть отсортированы по имени города
  *
- * @param {string} eventName - имя события, для которого нужно удалить обработчик
- * @param {Element} target - элемент, у которого нужно удалить обработчик
- * @param {function} fn - обработчик
+ * @return {Promise<Array<{name: String}>>}
  */
-function removeListener(eventName, target, fn) {
-    target.removeEventListener(eventName, fn);
-}
+function loadAndSortTowns() {
 
-/**
- * Функция должна добавлять к target обработчик события eventName, который должен отменять действие по умолчанию
- *
- * @param {string} eventName - имя события, для которого нужно удалить обработчик
- * @param {Element} target - элемент, на который нужно добавить обработчик
- */
-function skipDefault(eventName, target) {
-    target.addEventListener(eventName, (event) => event.preventDefault());
-}
-
-/**
- * Функция должна эмулировать событие click для элемента target
- *
- * @param {Element} target - элемент, на который нужно добавить обработчик
- */
-function emulateClick(target) {
-    target.dispatchEvent(new Event('click')); 
-}
-
-/**
- * Функция должна добавить такой обработчик кликов к элементу target
- * который реагирует (вызывает fn) только на клики по элементам BUTTON внутри target
- *
- * @param {Element} target - элемент, на который нужно добавить обработчик
- * @param {function} fn - функция, которую нужно вызвать при клике на элемент BUTTON внутри target
- */
-function delegate(target, fn) {
-    target.addEventListener('click', (event) => {
-        if (event.target.tagName == 'BUTTON') {
-            fn();
+    function compareCity(objCity1, objCity2) {
+        if (objCity1.name < objCity2.name) {
+            return -1
+        } else if (objCity1.name > objCity2.name) {
+            return 1
         }
-    })
-}
 
-/**
- * *** Со звездочкой ***
- * Функция должна добавить такой обработчик кликов к элементу target
- * который сработает только один раз и удалится
- * Постарайтесь не создавать глобальных переменных
- *
- * @param {Element} target - элемент, на который нужно добавить обработчик
- * @param {function} fn - обработчик
- */
-function once(target, fn) {
-    let handler = () => {
-        fn();
-        target.removeEventListener('click', handler);
-    };
+        return 0
+    }
     
-    target.addEventListener('click', handler);
+    return new Promise((resolve, reject) => {
+        let url = 'https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json';
+        let xhr = new XMLHttpRequest();
+
+        xhr.open('GET', url, true);
+        xhr.send();
+        xhr.timeout = 10000;
+
+        xhr.addEventListener('readystatechange', () => {
+            if (xhr.readyState != 4) return;
+
+            if (xhr.status != 200) {
+                reject(`Error: ${xhr.status} - ${xhr.statusText}`);
+            }
+            
+            let cityJson = JSON.parse(xhr.responseText);
+
+            if (cityJson.length < 1) {
+                return;
+            } else {
+                cityJson.sort(compareCity);    
+            }                
+
+            resolve(cityJson);        
+        });
+    })  
 }
 
 export {
-    addListener,
-    removeListener,
-    skipDefault,
-    emulateClick,
-    delegate,
-    once
+    delayPromise,
+    loadAndSortTowns
 };
