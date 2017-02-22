@@ -37,25 +37,27 @@ function loadAndSortTowns() {
 
         xhr.open('GET', url, true);
         xhr.send();
-        xhr.timeout = 10000;
+        xhr.timeout = 5000;
 
         xhr.addEventListener('readystatechange', () => {
             if (xhr.readyState != 4) return;
 
             if (xhr.status != 200) {
-                reject(`Error: ${xhr.status} - ${xhr.statusText}`);
+                reject();
             }
             
-            let cityJson = JSON.parse(xhr.responseText);
+            let arTowns = JSON.parse(xhr.responseText);
 
-            if (cityJson.length < 1) {
+            if (arTowns.length < 1) {
                 return;
             } else {
-                cityJson.sort(compareCity);    
+                arTowns.sort(compareCity);    
             }                
 
-            resolve(cityJson);        
+            resolve(arTowns);        
         });
+
+        xhr.addEventListener('error', () => reject());
     })  
 }
 

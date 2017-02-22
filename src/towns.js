@@ -49,10 +49,106 @@ function loadTowns() {
  * isMatching('Moscow', 'cow') // true
  * isMatching('Moscow', 'SCO') // true
  * isMatching('Moscow', 'Moscov') // false
- *
+ * 
  * @return {boolean}
  */
 function isMatching(full, chunk) {
+    full = full.toLowerCase();
+    chunk = chunk.toLowerCase();
+    
+    return full.indexOf(chunk) != -1 ? true : false
+}
+
+/**
+ * Вспомогательная функция для Promise, обрабатывает состояние rejected,
+ * при нажатии на кнопку запускает повторный запрос городов 
+ */
+
+function rejected() {
+    if(homeworkContainer.querySelector('#reply-container')) {
+        loadingBlock.hidden = true;
+        
+        return;
+    }
+
+    let div = document.createElement('div');
+    let p = document.createElement('p');
+    let btn = document.createElement('button');
+
+    p.innerHTML = 'Не удалось загрузить города';
+    btn.setAttribute('id', 'download-city');
+    btn.innerText = 'Повторить';
+
+    div.setAttribute('id', 'reply-container');
+    div.appendChild(p);
+    div.appendChild(btn);
+    homeworkContainer.appendChild(div);
+
+    loadingBlock.hidden = true;
+
+    btn.addEventListener('click', () => {
+        loadingBlock.hidden = false;
+        loadTowns().then(resolved, rejected);
+    })
+}
+
+/**
+ * Вспомогательная функция для Promise, обрабатывает состояние fulfilled
+ * @param Array<{name: String}> towns - массив городов
+ */
+
+function resolved(towns) {
+    if (Array.isArray(towns) && towns.length > 0){
+        let arTowns = (() => {
+            let result = [];
+            let key = 'name';
+
+            towns.forEach((el) => {
+                if (key in el) {
+                    result.push(el[key]);
+                }
+            });
+
+            return result;
+        })();
+
+        filterBlock.hidden = false;
+        loadingBlock.hidden = true;
+
+        let rpl = document.querySelector('#reply-container');
+        if(rpl){
+            homeworkContainer.removeChild(rpl);
+        }
+
+        filterInput.addEventListener('keyup', function() {
+            let value = this.value.trim();
+            let resultList = value ? getMatching(arTowns, value) : [];
+
+            filterResult.innerHTML = '';
+
+            if (resultList.length) {
+                resultList.forEach(el => {
+                    let span = document.createElement('span');
+
+                    span.innerHTML = el;
+                    filterResult.appendChild(span);
+                });
+            }
+
+        });
+    }
+}
+
+function getMatching(arr, chunk) {
+    let result = [];
+
+    arr.forEach((el) => {
+        if(isMatching(el, chunk)) {
+            result.push(el);
+        }
+    });
+
+    return result;
 }
 
 let loadingBlock = homeworkContainer.querySelector('#loading-block');
@@ -60,9 +156,10 @@ let filterBlock = homeworkContainer.querySelector('#filter-block');
 let filterInput = homeworkContainer.querySelector('#filter-input');
 let filterResult = homeworkContainer.querySelector('#filter-result');
 
-filterInput.addEventListener('keyup', function() {
-    let value = this.value.trim();
-});
+filterBlock.hidden = true;
+loadingBlock.hidden = false;
+
+loadTowns().then(resolved, rejected);
 
 export {
     loadTowns,
