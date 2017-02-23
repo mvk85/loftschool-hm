@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{htmlWebpackPlugin.options.title}}</title>
+    <style>
+        body{
+            font-size: 19px;
+        }
+        #filter-result span{
+            padding-left: 15px;
+            cursor: pointer;
+            line-height: 38px;
+            padding: 0 15px;
+            overflow: hidden;
+            list-style-type: none;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            display: block;
+        }
+        #filter-result span:hover {
+            background-color: #ffdb4d;
+        }
+        input{
+            padding-left: 15px;
+            line-height: 46px;
+            width: 100%;
+            font-size: 19px;
+        }
+        input, input:hover, input:focus, input:active, input:visited {
+            outline-color: #ffdb4d;
+            border-style: solid;
+            border-color: #ffdb4d;
+            background-color: #fff;
+            background-clip: padding-box;
+        }
+        #filter-block{
+            width: 500px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+<div id="homework-container">
+    {{> "./towns-content.hbs"}}
+</div>
+</body>
+</html>
