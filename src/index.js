@@ -1,67 +1,48 @@
-/* ДЗ 6.1 - Асинхронность и работа с сетью */
+/* ДЗ 7.1 - BOM */
 
 /**
- * Функция должна создавать Promise, который должен быть resolved через seconds секунду после создания
+ * Функция должна создавать окно с указанным именем и размерами
  *
- * @param {number} seconds - количество секунд, через которое Promise должен быть resolved
- * @return {Promise}
+ * @param {number} name - имя окна
+ * @param {number} width - ширина окна
+ * @param {number} height - высота окна
+ * @return {Window}
  */
-function delayPromise(seconds) {
-    return new Promise((resolve, reject) => {
-        setTimeout(() => resolve(), seconds * 1000);    
-    });    
+function createWindow(name, width, height) {
+    return window.open('/', name, `width=${width},height=${height}`);
 }
 
 /**
- * Функция должна вернуть Promise, который должен быть разрешен массивом городов, загруженным из
- * https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json
- * Элементы полученного массива должны быть отсортированы по имени города
+ * Функция должна закрывать указанное окно
  *
- * @return {Promise<Array<{name: String}>>}
+ * @param {Window} window - окно, размер которого надо изменить
  */
-function loadAndSortTowns() {
+function closeWindow(window) {
+    window.close(window);
+}
 
-    function compareCity(objCity1, objCity2) {
-        if (objCity1.name < objCity2.name) {
-            return -1
-        } else if (objCity1.name > objCity2.name) {
-            return 1
-        }
+/**
+ * Функция должна создавать cookie с указанными именем и значением
+ *
+ * @param name - имя
+ * @param value - значение
+ */
+function createCookie(name, value) {
+    document.cookie = `${name}=${value}`;
+}
 
-        return 0
-    }
-    
-    return new Promise((resolve, reject) => {
-        let url = 'https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json';
-        let xhr = new XMLHttpRequest();
-
-        xhr.open('GET', url, true);
-        xhr.send();
-        xhr.timeout = 5000;
-
-        xhr.addEventListener('readystatechange', () => {
-            if (xhr.readyState != 4) return;
-
-            if (xhr.status != 200) {
-                reject();
-            }
-            
-            let arTowns = JSON.parse(xhr.responseText);
-
-            if (arTowns.length < 1) {
-                return;
-            } else {
-                arTowns.sort(compareCity);    
-            }                
-
-            resolve(arTowns);        
-        });
-
-        xhr.addEventListener('error', () => reject());
-    })  
+/**
+ * Функция должна удалять cookie с указанным именем
+ *
+ * @param name - имя
+ */
+function deleteCookie(name) {    
+    document.cookie = `${name}=;expires=${new Date(0)}`
 }
 
 export {
-    delayPromise,
-    loadAndSortTowns
+    createWindow,
+    closeWindow,
+    createCookie,
+    deleteCookie
 };
